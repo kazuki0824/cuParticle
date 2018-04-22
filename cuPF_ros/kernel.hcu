@@ -1,0 +1,18 @@
+/*
+ * kernel.hcu
+ *
+ *  Created on: 2018/04/23
+ *      Author: kazuki
+ */
+
+#ifndef KERNEL_HCU_
+#define KERNEL_HCU_
+
+void getNumBlocksAndThreads(int whichKernel, int n, int maxBlocks, int maxThreads, int &blocks, int &threads);
+template <class T, unsigned int blockSize>
+__global__ void
+reduce5(T *g_idata, T *g_odata, unsigned int n);
+
+
+
+#endif /* KERNEL_HCU_ */
