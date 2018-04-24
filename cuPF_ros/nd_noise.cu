@@ -6,7 +6,7 @@
  */
 
 #include <curand_kernel.h>
-
+#include "helper_math.h"
 
 
 
