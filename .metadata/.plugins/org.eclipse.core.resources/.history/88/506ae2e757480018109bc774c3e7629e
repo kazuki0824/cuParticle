@@ -78,12 +78,10 @@ float3* start(float3 state) {
 	cudaMalloc(&importance_prefix,sizeof(float) * 8192);
 
 	cudaHostAlloc(&__current_state, sizeof(float3), cudaHostAllocMapped); //ゼロコピーメモリ
-	cudaHostAlloc(&lrf_host, sizeof(float2)*2000, cudaHostAllocMapped);
 
 	cudaHostAlloc(&p, 8192 * sizeof(float), cudaHostAllocMapped); //ゼロコピーメモリ
 	curandCreateGenerator(&g, CURAND_RNG_PSEUDO_DEFAULT);
 	curandSetPseudoRandomGeneratorSeed(g,clock());
-
 
 	prescanArray(importance_prefix, importance, 16);
 
@@ -93,6 +91,7 @@ float3* start(float3 state) {
 
 	return 	__current_state;
 }
+
 
 int b_search(float ary[], float key, int imin, int imax) ;
 float3 step() ////TODO:CUDAストリームの使用

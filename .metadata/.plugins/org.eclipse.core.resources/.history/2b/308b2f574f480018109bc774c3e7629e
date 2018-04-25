@@ -9,8 +9,8 @@
 #define ND_NOISE_HCU_
 
 
-
-__device__ float3 suggest_distribution(float3 x, float3 system_noise, float3 speed);
+__device__ float3 getSystemNoise(curandState_t * s,  mean_var_param param);
+__device__ float3 suggest_distribution(float3 x, float3 system_noise);
 
 struct mean_var_param
 	{
@@ -21,7 +21,5 @@ struct mean_var_param
 		float theta_mean = 0.0;
 		float theta_stddev = 0.0;
 	};
-
-__device__ float3 getSystemNoise(curandState_t * s,  mean_var_param param);
 
 #endif /* ND_NOISE_HCU_ */

@@ -70,7 +70,7 @@ float* p;
 static float3* __current_state;
 
 /*リダクションで尤度の総和を導出*/
-float3* start(float3 state) {
+float3* start(float3 state, ) {
 	preallocBlockSums(8192*8); //多めに取らないとアクセス違反が起こる
 	cudaHostAlloc(&particle_set, 8192 * sizeof(float3), cudaHostAllocMapped); //ゼロコピーメモリ
 
@@ -78,7 +78,6 @@ float3* start(float3 state) {
 	cudaMalloc(&importance_prefix,sizeof(float) * 8192);
 
 	cudaHostAlloc(&__current_state, sizeof(float3), cudaHostAllocMapped); //ゼロコピーメモリ
-	cudaHostAlloc(&lrf_host, sizeof(float2)*2000, cudaHostAllocMapped);
 
 	cudaHostAlloc(&p, 8192 * sizeof(float), cudaHostAllocMapped); //ゼロコピーメモリ
 	curandCreateGenerator(&g, CURAND_RNG_PSEUDO_DEFAULT);
@@ -93,6 +92,7 @@ float3* start(float3 state) {
 
 	return 	__current_state;
 }
+
 
 int b_search(float ary[], float key, int imin, int imax) ;
 float3 step() ////TODO:CUDAストリームの使用

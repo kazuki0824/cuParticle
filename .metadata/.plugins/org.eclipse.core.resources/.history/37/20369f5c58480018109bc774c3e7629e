@@ -78,7 +78,6 @@ float3* start(float3 state) {
 	cudaMalloc(&importance_prefix,sizeof(float) * 8192);
 
 	cudaHostAlloc(&__current_state, sizeof(float3), cudaHostAllocMapped); //ゼロコピーメモリ
-	cudaHostAlloc(&lrf_host, sizeof(float2)*2000, cudaHostAllocMapped);
 
 	cudaHostAlloc(&p, 8192 * sizeof(float), cudaHostAllocMapped); //ゼロコピーメモリ
 	curandCreateGenerator(&g, CURAND_RNG_PSEUDO_DEFAULT);

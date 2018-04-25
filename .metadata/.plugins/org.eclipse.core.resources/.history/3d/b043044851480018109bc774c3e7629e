@@ -21,7 +21,7 @@ __device__ float3 getSystemNoise(curandState_t * s, mean_var_param param)
 	return v;
 }
 
-__device__ float3 suggest_distribution(float3 x,float3 system_noise, float3 speed)
+__device__ float3 suggest_distribution(float3 x,float3 system_noise, float3 speed={0.0,0.0,0.0})
 {
 	//TODO:状態遷移関数?
 	return x + system_noise;

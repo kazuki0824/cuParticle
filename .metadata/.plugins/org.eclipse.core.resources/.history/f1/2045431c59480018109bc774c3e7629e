@@ -15,6 +15,6 @@ __host__ inline float2* getSensorDataPtr(){
 __device__ float likelihood(float3 state)
 {
 	//TODO:ゆうど関数？
-	//lrf_device[2000]を元に尤度を評価する
+	//lrf_deviceを元に尤度を評価する
 }
 

@@ -1,0 +1,21 @@
+15:24:18 **** Incremental Build of configuration Debug for project cuPF_ros ****
+Info: Configuration "Debug" uses tool-chain "CUDA Toolkit on the path" that is unsupported on this system, attempting to build anyway.
+make all 
+Building file: ../nd_noise.cu
+Invoking: NVCC Compiler
+/usr/local/cuda-8.0/bin/nvcc -G -g -O0 -gencode arch=compute_52,code=sm_52  -odir "." -M -o "nd_noise.d" "../nd_noise.cu"
+/usr/local/cuda-8.0/bin/nvcc -G -g -O0 --compile --relocatable-device-code=true -gencode arch=compute_52,code=compute_52 -gencode arch=compute_52,code=sm_52  -x cu -o  "nd_noise.o" "../nd_noise.cu"
+../nd_noise.hcu(17): warning: field initializers are a C++11 feature
+
+../nd_noise.cu(24): warning: expression has no effect
+
+../nd_noise.cu(24): warning: expression has no effect
+
+../nd_noise.cu(24): error: no suitable constructor exists to convert from "double" to "float3"
+
+1 error detected in the compilation of "/tmp/tmpxft_000007c2_00000000-7_nd_noise.cpp1.ii".
+subdir.mk:48: ターゲット 'nd_noise.o' のレシピで失敗しました
+make: *** [nd_noise.o] エラー 2
+
+15:24:19 Build Finished (took 761ms)
+

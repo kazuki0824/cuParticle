@@ -8,7 +8,7 @@
 #ifndef KERNEL_HCU_
 #define KERNEL_HCU_
 
-void start(float3 state);
+void start();
 void step();
 
 
