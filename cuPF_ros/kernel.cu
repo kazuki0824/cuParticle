@@ -33,7 +33,17 @@ __device__ float pred(float3 * current)
 
 }
 
-__global__ void particle(float3 *particles, float *importance){
+__global__ void fill_particle(float3 initialState, float3 * p)
+{
+	unsigned int seed,id;
+	curandState_t s;
+	curand_init(seed, id, 0, &s);
+	int thId=threadIdx.x+ blockDim.x * blockIdx.x;
+	p[thId] = initialState + getSystemNoise(&s);
+}
+
+__global__ void particle(float3 *particles, float *importance)
+{
 	int thId=threadIdx.x+ blockDim.x * blockIdx.x;
 	importance[thId] = pred(&particles[thId]);
 }
@@ -48,7 +58,7 @@ float* p;
 
 
 /*リダクションで尤度の総和を導出*/
-void start() {
+void start(float3 state) {
 	preallocBlockSums(8192*8); //多めに取らないとアクセス違反が起こる
 	cudaHostAlloc(&particle_set, 8192 * sizeof(float3), cudaHostAllocMapped); //ゼロコピーメモリ
 
@@ -61,6 +71,9 @@ void start() {
 	curandSetPseudoRandomGeneratorSeed(g,clock());
 
 	prescanArray(importance_prefix, importance, 16);
+
+	//初期アンサンブル
+	fill_particle<<<16,512>>>(state, particle_set);
 }
 
 
@@ -101,6 +114,12 @@ float3 step() ////TODO:CUDAストリームの使用
 
 
 
-	cudaFreeHost(p);
+}
 
+void Dispose()
+{
+	cudaFreeHost(p);
+	cudaFreeHost(particle_set);
+	cudaFree(importance);
+	cudaFree(importance_prefix);
 }
