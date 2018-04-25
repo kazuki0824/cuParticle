@@ -13,7 +13,7 @@
 
 int main()
 {
-	 float3 state;
+	 float3 state, velocity;
 	start(state);
-	step();
+	step(velocity);
 }

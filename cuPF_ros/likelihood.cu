@@ -6,12 +6,7 @@
  */
 
 
-float2* lrf_device;
-__host__ inline float2* getSensorDataPtr(){
-	cudaHostGetDevicePointer(&lrf_device, lrf_host, 0);
-	return lrf_host;
-}
-
+extern float2* lrf_device;
 __device__ float likelihood(float3 state)
 {
 	//TODO:ゆうど関数？

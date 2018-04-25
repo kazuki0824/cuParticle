@@ -9,11 +9,9 @@
 #define LIKELIHOOD_HCU_
 
 
-float2* lrf_host;
 
+__device__ float2* getSensorDataPtrDevice();
 
-
-__host__ float2* getSensorDataPtr();
 __device__ float likelihood(float3 state);
 
 
