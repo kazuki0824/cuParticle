@@ -150,9 +150,12 @@ float3* start(float3 state) {
 
 	//初期アンサンブル
 	*__current_state=state;
-	fill_particle<<<16,512>>>(*__current_state, particle_set);
 
-	return 	__current_state;
+	float3* dparticle;
+	cudaHostGetDevicePointer(&dparticle, particle_set, 0);
+	fill_particle<<<16,512>>>(*__current_state, dparticle);
+
+	return 	particle_set;
 }
 
 int b_search(float ary[], float key, int imin, int imax) ;
