@@ -7,6 +7,8 @@
 
 
 extern float2* lrf_device;
+
+extern __constant__ size_t sensor_data_count;
 __device__ float likelihood(float3 state)
 {
 	//TODO:ゆうど関数？

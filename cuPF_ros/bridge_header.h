@@ -9,7 +9,9 @@
 #define BRIDGE_HEADER_H_
 
 
-__host__ float2* getSensorDataPtrHost();
+__host__ void CopySensorData(float2 * from, size_t count);
+extern float3* start(float3 state);
+extern float3 step(float3 current_speed);
 
 
 #endif /* BRIDGE_HEADER_H_ */

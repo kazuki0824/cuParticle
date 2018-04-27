@@ -21,8 +21,13 @@ using namespace std;
 
 float2* lrf_host=NULL;
 float2* lrf_device;
-__host__ float2* getSensorDataPtrHost(){
-	return lrf_host;
+
+__constant__ size_t sensor_data_count;
+__host__ void CopySensorData(float2 * from, size_t count)
+{
+	memcpy(lrf_host,from,count);
+
+	cudaMemcpyToSymbol(&sensor_data_count, &count, sizeof(size_t));
 }
 
 __device__ float pred(float3 * current, float3 current_speed)
@@ -57,14 +62,61 @@ __global__ void fill_particle(float3 initialState, float3 * p)
 
 __global__ void particle(float3 *particles, float *importance, float3 current_speed, float3 *__state_ptr)
 {
-	int thId=threadIdx.x+ blockDim.x * blockIdx.x;
-	importance[thId] = pred(&particles[thId], current_speed);
+	__shared__ float max_per_blocks[16];
+	__shared__ int argmax_per_blocks[16];
 
+	int thId=threadIdx.x+ blockDim.x * blockIdx.x;
+	float value2 = importance[thId] = pred(&particles[thId], current_speed);
+	float value = value2;
 	//並列リダクションで最大値を求める
 
+	//各ワープ内部での評価
+	for (int i=1; i<32; i*=2)
+		value = fmaxf(value, __shfl_xor(-1, value, i)); //バタフライ交換の要領
+	if(value2 == value)//この条件にマッチするのはワープごとに一つのスレッドだけ
+	{
+		max_per_blocks[threadIdx.x/32] = value;
+		argmax_per_blocks[threadIdx.x/32] = thId;
+	}
+	__syncthreads();
 
+	//ブロック単位の評価
+	float* ptr = (float*)malloc(sizeof(float)*16);
+	int argmax_in_this_block =0;
+	if(threadIdx.x<16)
+	{
+		value = value2 = max_per_blocks[threadIdx.x];
+		for (int i=1; i<16; i*=2)
+			value = fmaxf(value, __shfl_xor(-1, value, i)); //バタフライ交換の要領
 
-	__state_ptr;
+		if(value2 == value)
+		{
+			ptr[blockIdx.x]=value;
+			argmax_in_this_block = argmax_per_blocks[threadIdx.x];
+		}
+
+		__syncthreads();
+
+		//ブロック間の評価
+		int block_with_max =0;
+		if(blockIdx.x==0)
+		{
+			float * final_temp = max_per_blocks;
+
+			final_temp[threadIdx.x] = ptr[threadIdx.x];
+			value = value2 = final_temp[threadIdx.x];
+			for (int i=1; i<16; i*=2)
+				value = fmaxf(value, __shfl_xor(-1, value, i)); //バタフライ交換の要領
+			if(value2 == value)
+			{
+				block_with_max = threadIdx.x;
+			}
+		}
+		if((blockIdx.x==block_with_max) && (threadIdx.x==0)){
+			*__state_ptr=particles[argmax_in_this_block];
+		}
+	}
+
 }
 
 
@@ -140,7 +192,7 @@ float3 step(float3 current_speed) ////TODO:CUDAストリームの使用
 	}
 	memcpy(particle_set,tmp_particle,8192 * sizeof(float3));
 
-
+	return *__current_state;
 
 }
 
