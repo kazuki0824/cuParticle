@@ -22,6 +22,7 @@ using namespace std;
 float2* lrf_host=NULL;
 float2* lrf_device;
 
+
 __constant__ size_t sensor_data_count;
 __host__ void CopySensorData(float2 * from, size_t count)
 {
@@ -29,6 +30,15 @@ __host__ void CopySensorData(float2 * from, size_t count)
 
 	cudaMemcpyToSymbol(&sensor_data_count, &count, sizeof(size_t));
 }
+
+
+const int MAP_SIZE = 1024;
+__constant__ float map[MAP_SIZE*MAP_SIZE];
+__host__ void CopyMapData(float * from, size_t count)
+{
+	cudaMemcpyToSymbol(map, from, sizeof(float)*MAP_SIZE*MAP_SIZE);
+}
+
 
 __device__ float pred(float3 * current, float3 current_speed)
 {
@@ -116,7 +126,7 @@ __global__ void particle(float3 *particles, float *importance, float3 current_sp
 			*__state_ptr=particles[argmax_in_this_block];
 		}
 	}
-
+	free(ptr);
 }
 
 
@@ -204,6 +214,7 @@ void Dispose()
 	cudaFreeHost(p);
 	cudaFreeHost(particle_set);
 	cudaFreeHost(__current_state);
+	cudaFreeHost(lrf_host);
 	cudaFree(importance);
 	cudaFree(importance_prefix);
 }
