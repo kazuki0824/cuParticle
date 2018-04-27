@@ -20,7 +20,7 @@ using namespace std;
 
 
 float2* lrf_host=NULL;
-float2* lrf_device;
+__device__ float2* lrf_device;
 
 
 __constant__ size_t sensor_data_count;
@@ -154,7 +154,9 @@ float3* start(float3 state) {
 	curandCreateGenerator(&g, CURAND_RNG_PSEUDO_DEFAULT);
 	curandSetPseudoRandomGeneratorSeed(g,clock());
 
-	cudaHostGetDevicePointer(&lrf_device, lrf_host, 0);
+	float2* lrf_device_;
+	cudaHostGetDevicePointer(&lrf_device_, lrf_host, 0);
+	cudaMemcpyToSymbol(&lrf_device,&lrf_device_,sizeof(float));
 
 	prescanArray(importance_prefix, importance, 16);
 
