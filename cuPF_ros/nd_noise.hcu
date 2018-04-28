@@ -10,7 +10,7 @@
 
 
 
-__device__ float3 suggest_distribution(float3 x, float3 system_noise, float3 speed);
+__device__ float3 suggest_distribution(float3 x, float3 speed, curandState_t *s);
 
 struct mean_var_param
 	{
