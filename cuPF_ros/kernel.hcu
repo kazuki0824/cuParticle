@@ -9,7 +9,7 @@
 #define KERNEL_HCU_
 
 void start(float3 state);
-void step();
+void step(float3 current_speed);
 
 
 #endif /* KERNEL_HCU_ */
