@@ -9,7 +9,7 @@
 #define LIKELIHOOD_HCU_
 
 
-__forceinline__ __device__ float likelihood(float3 state);
+__device__ float likelihood(float3 state);
 
 
 #endif /* LIKELIHOOD_HCU_ */

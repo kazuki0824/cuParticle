@@ -19,7 +19,7 @@
 using namespace std;
 
 
-float2* lrf_host=NULL;
+float2* lrf_host;
 __device__ float2* lrf_device;
 
 
@@ -28,28 +28,27 @@ __host__ void CopySensorData(float2 * from, size_t count)
 {
 	memcpy(lrf_host,from,count);
 
-	cudaMemcpyToSymbol(&sensor_data_count, &count, sizeof(size_t));
+	cudaMemcpyToSymbol(sensor_data_count, &count, sizeof(size_t));
 }
 
 
 const int MAP_SIZE = 1024;
-__constant__ float map[MAP_SIZE*MAP_SIZE];
+__device__ float map[MAP_SIZE*MAP_SIZE];
 __host__ void CopyMapData(float * from, size_t count)
 {
-	cudaMemcpyToSymbol(map, from, sizeof(float)*MAP_SIZE*MAP_SIZE);
+	cudaMemcpyToSymbol(map, from, count);
 }
 
 
 __device__ float pred(float3 * current, float3 current_speed)
 {
-	unsigned int seed,id;
+	unsigned int seed = current_speed.x;
+	unsigned int id = current_speed.y;
 	curandState_t s;
 	curand_init(seed, id, 0, &s);//高速化を図りたい
 
 
-	mean_var_param pa; //TODO:
-	float3 noise = getSystemNoise(&s, pa);
-	float3 prediction = suggest_distribution(*current ,noise, current_speed);
+	float3 prediction = suggest_distribution(*current ,current_speed, &s);
 
 	float l = likelihood(prediction); //予測のもっともらしさを計算する
 
@@ -61,12 +60,15 @@ __device__ float pred(float3 * current, float3 current_speed)
 
 __global__ void fill_particle(float3 initialState, float3 * p)
 {
-	unsigned int seed,id;
+	unsigned int seed = initialState.x;
+	unsigned int id = initialState.y;
 	curandState_t s;
 	curand_init(seed, id, 0, &s);
 	int thId=threadIdx.x+ blockDim.x * blockIdx.x;
 
-	mean_var_param pa ; //TODO:
+	mean_var_param pa;
+	pa.x_stddev = pa.y_stddev = 1.0;
+	pa.theta_stddev = 0.4;
 	p[thId] = initialState + getSystemNoise(&s, pa);
 }
 
@@ -93,10 +95,10 @@ __global__ void particle(float3 *particles, float *importance, float3 current_sp
 	//ブロック単位の評価
 	float* ptr = (float*)malloc(sizeof(float)*16);
 	int argmax_in_this_block =0;
-	if(threadIdx.x<16)
+	if(threadIdx.x<8)
 	{
 		value = value2 = max_per_blocks[threadIdx.x];
-		for (int i=1; i<16; i*=2)
+		for (int i=1; i<8; i*=2)
 			value = fmaxf(value, __shfl_xor(-1, value, i)); //バタフライ交換の要領
 
 		if(value2 == value)
@@ -115,7 +117,7 @@ __global__ void particle(float3 *particles, float *importance, float3 current_sp
 
 			final_temp[threadIdx.x] = ptr[threadIdx.x];
 			value = value2 = final_temp[threadIdx.x];
-			for (int i=1; i<16; i*=2)
+			for (int i=1; i<8; i*=2)
 				value = fmaxf(value, __shfl_xor(-1, value, i)); //バタフライ交換の要領
 			if(value2 == value)
 			{
@@ -137,12 +139,13 @@ float * importance_prefix;
 curandGenerator_t g;
 float* p;
 
-static float3* __current_state;
-
+float3* __current_state;
+__constant__ int MAP_SIZE_DEVICE;
 /*リダクションで尤度の総和を導出*/
 float3* start(float3 state) {
 	preallocBlockSums(8192*8); //多めに取らないとアクセス違反が起こる
 	cudaHostAlloc(&particle_set, 8192 * sizeof(float3), cudaHostAllocMapped); //ゼロコピーメモリ
+
 
 	cudaMalloc(&importance,sizeof(float) * 8192);
 	cudaMalloc(&importance_prefix,sizeof(float) * 8192);
@@ -151,21 +154,24 @@ float3* start(float3 state) {
 	cudaHostAlloc(&lrf_host, sizeof(float2)*2000, cudaHostAllocMapped);
 
 	cudaHostAlloc(&p, 8192 * sizeof(float), cudaHostAllocMapped); //ゼロコピーメモリ
+
 	curandCreateGenerator(&g, CURAND_RNG_PSEUDO_DEFAULT);
 	curandSetPseudoRandomGeneratorSeed(g,clock());
 
 	float2* lrf_device_;
 	cudaHostGetDevicePointer(&lrf_device_, lrf_host, 0);
-	cudaMemcpyToSymbol(&lrf_device,&lrf_device_,sizeof(float));
+	cudaMemcpyToSymbol(lrf_device,&lrf_device_,sizeof(float2*));
 
-	prescanArray(importance_prefix, importance, 16);
+	prescanArray(importance_prefix, importance, 8);
 
 	//初期アンサンブル
 	*__current_state=state;
 
 	float3* dparticle;
 	cudaHostGetDevicePointer(&dparticle, particle_set, 0);
-	fill_particle<<<16,512>>>(*__current_state, dparticle);
+
+	fill_particle<<<128,64>>>(*__current_state, dparticle);
+	cudaMemcpyToSymbol(MAP_SIZE_DEVICE, &MAP_SIZE, sizeof(int));
 
 	return 	particle_set;
 }
@@ -177,7 +183,7 @@ float3 step(float3 current_speed) ////TODO:CUDAストリームの使用
 	cudaHostGetDevicePointer(&dparticle, particle_set, 0);
 	float3* cPos_device;
 	cudaHostGetDevicePointer(&cPos_device, __current_state, 0);
-	particle<<<16,512>>>(dparticle,importance , current_speed, cPos_device);
+	particle<<<16,256>>>(dparticle,importance , current_speed, cPos_device);
 	prescanArray(importance_prefix, importance, 8192);
 	int const n = 8192;
 	float* dp;	cudaHostGetDevicePointer(&dp, p, 0);

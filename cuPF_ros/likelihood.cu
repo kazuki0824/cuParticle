@@ -7,13 +7,15 @@
 
 
 extern __device__ float2* lrf_device;
-extern __constant__ float map[];
+extern __device__ float map[];
 extern __constant__ size_t sensor_data_count;
-const int MAP_SIZE; //マップの一辺の長さ
-__constant__ int MAP_SIZE_DEVICE = MAP_SIZE;
+extern const int MAP_SIZE; //マップの一辺の長さ
+extern __constant__ int MAP_SIZE_DEVICE;
 
-__forceinline__ __device__ float likelihood(float3 state)
+__device__ float likelihood(float3 state)
 {
+	const float map_real_width = 10.0;
+
 	//TODO:ゆうど関数？
 	//lrf_device[2000]を元に尤度を評価する
 
@@ -22,5 +24,14 @@ __forceinline__ __device__ float likelihood(float3 state)
 	//map デバイス側コンスタントメモリの上にコピーされたマップデータの配列。読み込み専用
 	//lrf_device LRFのデータ。グローバルメモリの上にピンされたゼロコピーメモリの上に載っている。読み書き自由。
 
+	//int thId=threadIdx.x+ blockDim.x * blockIdx.x; //今のパーティクルの番号
+	int x_, y_;
+#pragma unroll
+	for(int i=0; i < sensor_data_count; i++)
+	{
+		x_ = (int)((state.x + lrf_device[i].x) * MAP_SIZE_DEVICE / map_real_width);
+		y_ = (int)((state.y + lrf_device[i].y) * MAP_SIZE_DEVICE / map_real_width);
+	}
+	return map[y_ * MAP_SIZE_DEVICE + x_];
 }
 
