@@ -25,7 +25,6 @@ __device__ float likelihood(float3 state)
 	//lrf_device LRFのデータ。グローバルメモリの上にピンされたゼロコピーメモリの上に載っている。読み書き自由。
 
 	//int thId=threadIdx.x+ blockDim.x * blockIdx.x; //今のパーティクルの番号
-	//return 0.0;
 	int x_, y_;
 #pragma unroll
 	for(int i=0; i < sensor_data_count; i++)
@@ -33,6 +32,9 @@ __device__ float likelihood(float3 state)
 		x_ = (int)((state.x + lrf_device[i].x) * MAP_SIZE_DEVICE / map_real_width);
 		y_ = (int)((state.y + lrf_device[i].y) * MAP_SIZE_DEVICE / map_real_width);
 	}
+
+	if ((y_ * MAP_SIZE_DEVICE + x_)>=MAP_SIZE_DEVICE * MAP_SIZE_DEVICE)
+		return 0.0;
 	return map[y_ * MAP_SIZE_DEVICE + x_];
 }
 
