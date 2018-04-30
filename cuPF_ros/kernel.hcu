@@ -8,8 +8,9 @@
 #ifndef KERNEL_HCU_
 #define KERNEL_HCU_
 
-float3* start(float3 state);
-float3 step(float3 current_speed);
+
+float3* start(float x, float y, float z);
+float3 step(float vx, float vy, float vz);
 
 
 #endif /* KERNEL_HCU_ */

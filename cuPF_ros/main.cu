@@ -13,11 +13,11 @@
 
 int main()
 {
-	float xx[5] = {0.0,0.1,0.2};
+	float xx[8] = {0.0,0.1,0.2};
 	float x[4] ;
 	float3 state, velocity;
-	start(state);
+	start(x[0],x[1],x[2]);
 	CopyMapData(xx,3);
 	CopySensorData(x,2);
-	step(velocity);
+	step(x[0],x[1],x[2]);
 }

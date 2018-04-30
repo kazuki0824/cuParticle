@@ -25,7 +25,7 @@ float3* start(float)
 第一引数: 初期状態
 戻り値: パーティクル配列の先頭のポインタ
 */
-float3* start(float3 state);
+float3* start(float x, float y, float z);
 
 /*
 float3 step(float3)
@@ -34,7 +34,7 @@ float3 step(float3)
 第一引数: 現在の移動速度
 第二引数: 最尤粒子
 */
-float3 step(float3 current_speed);
+float3 step(float vx, float vy, float vz);
 
 void Dispose();
 
