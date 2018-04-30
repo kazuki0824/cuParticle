@@ -32,14 +32,13 @@ __device__ float likelihood(float3 state)
 	{
 		x_ = MAP_SIZE_DEVICE /2 + (int)((state.x + lrf_device[i].x) * MAP_SIZE_DEVICE / map_real_width);
 		y_ = MAP_SIZE_DEVICE /2 + (int)((state.y + lrf_device[i].y) * MAP_SIZE_DEVICE / map_real_width);
-		printf("%d\n",y_ * MAP_SIZE_DEVICE + x_);
 
-		/*if ((y_ * MAP_SIZE_DEVICE + x_)>=MAP_SIZE_DEVICE * MAP_SIZE_DEVICE || (y_ * MAP_SIZE_DEVICE + x_) <0)
+		if ((y_ * MAP_SIZE_DEVICE + x_)>=MAP_SIZE_DEVICE * MAP_SIZE_DEVICE || (y_ * MAP_SIZE_DEVICE + x_) <0)
 		{
 			printf("%d\n",y_ * MAP_SIZE_DEVICE + x_);
 			return 0.0;
 		}
-		else*/
+		else
 			l+=map[y_ * MAP_SIZE_DEVICE + x_];
 	}
 
