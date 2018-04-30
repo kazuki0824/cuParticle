@@ -25,6 +25,7 @@ __device__ float likelihood(float3 state)
 	//lrf_device LRFのデータ。グローバルメモリの上にピンされたゼロコピーメモリの上に載っている。読み書き自由。
 
 	//int thId=threadIdx.x+ blockDim.x * blockIdx.x; //今のパーティクルの番号
+	//return 0.0;
 	int x_, y_;
 #pragma unroll
 	for(int i=0; i < sensor_data_count; i++)
