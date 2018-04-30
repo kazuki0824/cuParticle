@@ -14,7 +14,7 @@
 
 extern const int MAP_SIZE; //マップの一辺の長さ
 
-__host__ void CopySensorData(float2 * from, size_t count);
+__host__ void CopySensorData(float * from, size_t count);
 __host__ void CopyMapData(float * from, size_t count);
 
 

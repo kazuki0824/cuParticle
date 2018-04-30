@@ -14,7 +14,7 @@
 int main()
 {
 	float xx[5] = {0.0,0.1,0.2};
-	float2 x[4] ;
+	float x[4] ;
 	float3 state, velocity;
 	start(state);
 	CopyMapData(xx,3);

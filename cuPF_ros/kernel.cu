@@ -24,9 +24,11 @@ __device__ float2* lrf_device;
 
 
 __constant__ size_t sensor_data_count;
-__host__ void CopySensorData(float2 * from, size_t count)
+__host__ void CopySensorData(float * from, size_t count)
 {
-	memcpy(lrf_host,from,count);
+	for (int var = 0; var < count; ++var) {
+		lrf_host[var] = make_float2(from[var<<1],from[var<<1+1]);
+	}
 
 	cudaMemcpyToSymbol(sensor_data_count, &count, sizeof(size_t));
 }
