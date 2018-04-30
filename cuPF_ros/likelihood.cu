@@ -5,7 +5,7 @@
  *      Author: kazuki
  */
 
-
+#include <stdio.h>
 extern __device__ float2* lrf_device;
 extern __device__ float map[];
 extern __constant__ size_t sensor_data_count;
@@ -26,15 +26,23 @@ __device__ float likelihood(float3 state)
 
 	//int thId=threadIdx.x+ blockDim.x * blockIdx.x; //今のパーティクルの番号
 	int x_, y_;
+	float l = 0.0;
 #pragma unroll
 	for(int i=0; i < sensor_data_count; i++)
 	{
 		x_ = (int)((state.x + lrf_device[i].x) * MAP_SIZE_DEVICE / map_real_width);
 		y_ = (int)((state.y + lrf_device[i].y) * MAP_SIZE_DEVICE / map_real_width);
+
+		if ((y_ * MAP_SIZE_DEVICE + x_)>=MAP_SIZE_DEVICE * MAP_SIZE_DEVICE)
+		{
+			printf("err\n");
+			return 0.0;
+		}
+		else
+			l+=map[y_ * MAP_SIZE_DEVICE + x_];
 	}
 
-	if ((y_ * MAP_SIZE_DEVICE + x_)>=MAP_SIZE_DEVICE * MAP_SIZE_DEVICE)
-		return 0.0;
-	return map[y_ * MAP_SIZE_DEVICE + x_];
+
+	return l;
 }
 
