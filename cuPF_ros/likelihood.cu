@@ -30,15 +30,16 @@ __device__ float likelihood(float3 state)
 #pragma unroll
 	for(int i=0; i < sensor_data_count; i++)
 	{
-		x_ = (int)((state.x + lrf_device[i].x) * MAP_SIZE_DEVICE / map_real_width);
-		y_ = (int)((state.y + lrf_device[i].y) * MAP_SIZE_DEVICE / map_real_width);
+		x_ = MAP_SIZE_DEVICE /2 + (int)((state.x + lrf_device[i].x) * MAP_SIZE_DEVICE / map_real_width);
+		y_ = MAP_SIZE_DEVICE /2 + (int)((state.y + lrf_device[i].y) * MAP_SIZE_DEVICE / map_real_width);
+		printf("%d\n",y_ * MAP_SIZE_DEVICE + x_);
 
-		if ((y_ * MAP_SIZE_DEVICE + x_)>=MAP_SIZE_DEVICE * MAP_SIZE_DEVICE)
+		/*if ((y_ * MAP_SIZE_DEVICE + x_)>=MAP_SIZE_DEVICE * MAP_SIZE_DEVICE || (y_ * MAP_SIZE_DEVICE + x_) <0)
 		{
-			printf("err\n");
+			printf("%d\n",y_ * MAP_SIZE_DEVICE + x_);
 			return 0.0;
 		}
-		else
+		else*/
 			l+=map[y_ * MAP_SIZE_DEVICE + x_];
 	}
 
