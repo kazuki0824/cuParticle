@@ -39,7 +39,7 @@ __device__ float likelihood(float3 state)
 			return 0.0;
 		}
 		else
-			l+=map[y_ * MAP_SIZE_DEVICE + x_];
+			l+=__ldg(&map[y_ * MAP_SIZE_DEVICE + x_]);
 	}
 
 

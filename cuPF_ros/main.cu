@@ -19,5 +19,6 @@ int main()
 	start(x[0],x[1],x[2]);
 	CopyMapData(xx,3);
 	CopySensorData(x,2);
-	step(x[0],x[1],x[2]);
+	float3 data = step(x[0],x[1],x[2]);
+	printf("%f,%f,%f\n",data.x,data.y,data.z);
 }
