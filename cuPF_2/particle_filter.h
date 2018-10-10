@@ -9,9 +9,9 @@
 #define PARTICLE_FILTER_H_
 
 
-#include "../modules/helper_math.h"
-#include "../user/config.h"
-#include "../user/behavior.h"
+#include "modules/helper_math.h"
+#include "user/config.h"
+#include "user/behavior.h"
 
 void Init(float x, float y, float z);
 void Step(vParameter param);
