@@ -11,7 +11,7 @@
 #include <curand_kernel.h>
 
 #include "particle_filter.h"
-#include "likelihood.h"
+#include "user/likelihood.h"
 
 #include <stdio.h>
 int b_search(float ary[], float key, int imin, int imax) {
@@ -39,6 +39,8 @@ static void SetupLMap() //尤度マップ転送
 }
 
 
+float * p;
+curandGenerator_t g;
 void Init(float x, float y, float z)
 {
 	state = make_float3(x,y,z);
@@ -50,8 +52,6 @@ void Init(float x, float y, float z)
 	curandSetPseudoRandomGeneratorSeed(g,clock());
 
 }
-float * p;
-curandGenerator_t g;
 void Step(vParameter param)
 {
 	cudaHostAlloc(&p, 8192 * sizeof(float), cudaHostAllocMapped); //ゼロコピーメモリ

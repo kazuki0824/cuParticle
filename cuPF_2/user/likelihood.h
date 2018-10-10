@@ -24,6 +24,7 @@ static inline __device__ float likelihood(float3 state)
 	//int thId=threadIdx.x+ blockDim.x * blockIdx.x; //今のパーティクルの番号
 	int x_, y_;
 	float l = 0.0;
+	/*
 #pragma unroll
 	for(int i=0; i < sensor_data_count; i++)
 	{
@@ -38,7 +39,7 @@ static inline __device__ float likelihood(float3 state)
 		else
 			l+=__ldg(&map[y_ * MAP_SIZE_DEVICE + x_]);
 	}
-
+	*/
 
 	return l;
 }
