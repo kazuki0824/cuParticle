@@ -6,10 +6,10 @@
  */
 
 
-#include <cub/device/device_scan.cuh>
 #include <curand.h>
 #include <curand_kernel.h>
 
+#include "modules/cub_wrapper.cuh"
 #include "particle_filter.h"
 #include "user/likelihood.h"
 #include "user/behavior.h"
@@ -101,16 +101,14 @@ void Step(vParameter param)
 	float2* dLRF; cudaHostGetDevicePointer(&dLRF, hLRF, 0);
 	kStep<<<64,128>>>(dparticle,dLRF,dLikelihood_table,state, clock(), param, map);
 
-	//TODO: Inclusive scan using CUB(null stream)
-
+	//Inclusive scan using CUB(null stream)
+	float hPrefix[8192];
+	incl_scan_CDF(dLikelihood_table, hPrefix, sample_count, 0);
 
 	//TODO: ICP matching(non-null stream1)
 	float2 hICP_result;
 
 
-	//cudaMemcpy prefix sum(null stream/blocking)
-	float hPrefix[8192];
-	cudaMemcpy(hPrefix, dLikelihood_table, sizeof(float) * sample_count, cudaMemcpyDeviceToHost);
 
 	//Wait
 	cudaStreamSynchronize(stream_1);
