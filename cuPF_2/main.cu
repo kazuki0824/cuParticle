@@ -9,6 +9,6 @@
 #include "particle_filter.h"
 int main()
 {
-	Init(0,0,0);
-	Step(param);
+	Init(0,0);
+	Step(default_param);
 }

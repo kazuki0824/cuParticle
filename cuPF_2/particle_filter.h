@@ -11,10 +11,9 @@
 
 #include "modules/helper_math.h"
 #include "user/config.h"
-#include "user/behavior.h"
 
-void Init(float x, float y, float z);
-void Step(vParameter param);
+void Init(float x, float y);
+void Step(vParameter);
 
 
 #endif /* PARTICLE_FILTER_H_ */

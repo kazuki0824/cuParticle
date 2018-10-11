@@ -9,7 +9,7 @@
 #define LIKELIHOOD_H_
 
 
-static inline __device__ float likelihood(float3 state)
+static inline __device__ float likelihood(float old_likelihood, float2 state, float2 * LRF_device, float * map_device)
 {
 	const float map_real_width = 10.0;
 
