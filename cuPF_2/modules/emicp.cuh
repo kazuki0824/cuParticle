@@ -1,4 +1,14 @@
 /*
+ * emicp.cuh
+ *
+ *  Created on: 2018/10/12
+ *      Author: dvr1
+ */
+
+#ifndef EMICP_CUH_
+#define EMICP_CUH_
+
+/*
   Copyright (c) 2010 Toru Tamaki
 
   Permission is hereby granted, free of charge, to any person
@@ -36,7 +46,7 @@
 
 __global__ static void
 updateA(int rowsA, int colsA, int pitchA,
-	const float* d_Xx, const float* d_Xy, const float* d_Xz, 
+	const float* d_Xx, const float* d_Xy, const float* d_Xz,
 	const float* d_Yx, const float* d_Yy, const float* d_Yz,
 	const float* d_R, const float* d_t,
 	float* d_A,
@@ -255,8 +265,8 @@ void emicp(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_target, const pcl::Po
 	// number of rows:     Ysize, or rowsA
 	// number of columns : Xsize, or colsA
 	//
-	//                    [0th in X] [1st]  ... [(Xsize-1)] 
-	// [0th point in Y] [ A(0,0)     A(0,1) ... A(0,Xsize-1)      ] 
+	//                    [0th in X] [1st]  ... [(Xsize-1)]
+	// [0th point in Y] [ A(0,0)     A(0,1) ... A(0,Xsize-1)      ]
 	// [1st           ] [ A(1,0)     A(1,1) ...                   ]
 	// ...              [ ...                                     ]
 	// [(Ysize-1)     ] [ A(Ysize-1, 0)     ... A(Ysize-1,Xsize-1)]
@@ -361,7 +371,7 @@ void emicp(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_target, const pcl::Po
 		normalizeRowsOfA <<<dimGridForA, dimBlockForA>>> (rowsA, colsA, pitchA, d_A, d_C);
 
 		// update R,T
-		///////////////////////////////////////////////////////////////////////////////////// 
+		/////////////////////////////////////////////////////////////////////////////////////
 		// compute lambda
 		// A * one vector = vector with elements of row-wise sum
 		//     d_A      *    d_one    =>  d_lambda
@@ -374,23 +384,23 @@ void emicp(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_target, const pcl::Po
 			0.0f,         // float beta
 			d_lambda, 1); // float *y, int incy
 
-		// float cublasSasum (int n, const float *x, int incx) 
+		// float cublasSasum (int n, const float *x, int incx)
 		float sumLambda = cublasSasum (rowsA, d_lambda, 1);
 
-		///////////////////////////////////////////////////////////////////////////////////// 
+		/////////////////////////////////////////////////////////////////////////////////////
 		// compute X'
-		// cublasSgemm (char transa, char transb, int m, int n, int k, float alpha, 
-		//              const float *A, int lda, const float *B, int ldb, float beta, 
+		// cublasSgemm (char transa, char transb, int m, int n, int k, float alpha,
+		//              const float *A, int lda, const float *B, int ldb, float beta,
 		//              float *C, int ldc)
 		//   C = alpha * op(A) * op(B) + beta * C,
 		//
 		// m      number of rows of matrix op(A) and rows of matrix C
 		// n      number of columns of matrix op(B) and number of columns of C
-		// k      number of columns of matrix op(A) and number of rows of op(B) 
+		// k      number of columns of matrix op(A) and number of rows of op(B)
 		// A * X => X'
 		//     d_A      *    d_X    =>  d_Xprime
 		//(rowsA*colsA) *  (colsA*3)  =  (rowsA*3)
-		//   m  * k           k * n        m * n   
+		//   m  * k           k * n        m * n
 		cublasSgemm('n', 'n', rowsA, 3, colsA,
 			1.0f, d_A, pitchA,
 			d_X, colsA,
@@ -399,7 +409,7 @@ void emicp(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_target, const pcl::Po
 		// X' ./ lambda => X'
 		elementwiseDivision <<<blocksPerGridForYsize, threadsPerBlockForYsize>>> (rowsA, d_XprimeX, d_XprimeY, d_XprimeZ, d_lambda);
 
-		///////////////////////////////////////////////////////////////////////////////////// 
+		/////////////////////////////////////////////////////////////////////////////////////
 		// centering X' and Y
 		// find weighted center of X' and Y
 		// d_Xprime^T *    d_lambda     =>   h_Xc
@@ -430,12 +440,12 @@ void emicp(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_target, const pcl::Po
 		cudaMemcpy(h_Xc, d_Xc, sizeof(float)*3, cudaMemcpyDeviceToHost);
 		cudaMemcpy(h_Yc, d_Yc, sizeof(float)*3, cudaMemcpyDeviceToHost);
 
-		///////////////////////////////////////////////////////////////////////////////////// 
+		/////////////////////////////////////////////////////////////////////////////////////
 		// centering X and Y
 		// d_Xprime .- d_Xc => d_XprimeCenterd
 		// d_Y      .- d_Yc => d_YCenterd
 		centeringXandY <<<blocksPerGridForYsize, threadsPerBlockForYsize>>>
-			(rowsA, 
+			(rowsA,
 				d_Xc, d_Yc,
 				d_XprimeX, d_XprimeY, d_XprimeZ,
 				d_Yx, d_Yy, d_Yz,
@@ -445,7 +455,7 @@ void emicp(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_target, const pcl::Po
 		// XprimeCented .* d_lambda => XprimeCented
 		elementwiseMultiplication <<<blocksPerGridForYsize, threadsPerBlockForYsize>>> (rowsA, d_XprimeCenterdX, d_XprimeCenterdY, d_XprimeCenterdZ, d_lambda);
 
-		///////////////////////////////////////////////////////////////////////////////////// 
+		/////////////////////////////////////////////////////////////////////////////////////
 		// compute S
 		//  d_XprimeCented^T *   d_YCenterd     =>  d_S
 		//    (3*rowsA)  *  (rowsA*3)  =  (3*3)
@@ -456,13 +466,13 @@ void emicp(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_target, const pcl::Po
 			0.0f, d_S, 3);
 		cudaMemcpy(h_S, d_S, sizeof(float)*9, cudaMemcpyDeviceToHost);
 
-		///////////////////////////////////////////////////////////////////////////////////// 
+		/////////////////////////////////////////////////////////////////////////////////////
 		// find RT from S
 		START_TIMER(timerAfterSVD);
 		findRTfromS(h_Xc, h_Yc, h_S, h_R, h_t);
 		STOP_TIMER(timerAfterSVD);
 
-		///////////////////////////////////////////////////////////////////////////////////// 
+		/////////////////////////////////////////////////////////////////////////////////////
 		// copy R,t to device
 		START_TIMER(timerRT);
 		cudaMemcpy(d_R, h_R, sizeof(float)*3*3, cudaMemcpyHostToDevice);
@@ -515,3 +525,8 @@ void emicp(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_target, const pcl::Po
 	delete [] h_one;
 }
 
+
+
+
+
+#endif /* EMICP_CUH_ */

@@ -9,7 +9,6 @@
 #define PARTICLE_FILTER_H_
 
 
-#include "helper_math.h"
 #include "user/config.h"
 
 void Init(float x, float y);
