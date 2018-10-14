@@ -29,5 +29,5 @@ void performICP(void * hLRF)
 	//paramは、registrationParameterという構造体で、emicp.hに定義がある。
 	//意味はhttps://github.com/v-mehta/cuda_emicp_softassign#how-to-use-the-apiの通り。
 	//パラメータの意味はhttps://ieeexplore.ieee.org/abstract/document/5695231にあるらしい(?)
-
+	
 }

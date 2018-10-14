@@ -5,8 +5,8 @@
  *      Author: maleicacid
  */
 
-
 #include "particle_filter.h"
+
 int main()
 {
 	Init(0,0);
