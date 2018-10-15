@@ -47,6 +47,9 @@ static void SetupLMap(float * from, size_t count)
 }
 
 /*********************************************************/
+// スキャンデータ処理用変数
+extern int nBeam;
+extern float2 * hLRF;
 
 float2 state = {0};
 float * p;
@@ -54,7 +57,6 @@ float2 * dparticle;
 float2 hparticle[sample_count];
 float * dLikelihood_table;
 float hLikelihood_table[sample_count];
-float2 * hLRF;
 static void prepare_particle_likelihood(float2 xy)
 {
 	cudaMalloc((float2**)&dparticle,sample_count * sizeof(float2));
