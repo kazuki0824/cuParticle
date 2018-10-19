@@ -56,6 +56,9 @@ cuda_add_executable(cu_particle_node
   cuPF_2/modules/cloud2data.cpp
   cuPF_2/modules/findRTfromS.cpp
   cuPF_2/particle_filter.cu
+  cuPF_2/lidar.cu
+  cuPF_2/odometry.cu
+  
 )
 
 cuda_add_cublas_to_target(cu_particle_node)
