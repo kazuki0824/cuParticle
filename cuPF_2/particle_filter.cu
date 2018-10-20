@@ -47,23 +47,25 @@ static void SetupLMap(float * from, size_t count)
 }
 
 /*********************************************************/
+// スキャンデータ処理用変数
+extern float2 * hLRF;
+extern int nBeam;
 
-float2 state = {0};
+// 位置情報
+extern float3 state = {0};
+
 float * p;
 float2 * dparticle;
 float2 hparticle[sample_count];
 float * dLikelihood_table;
 float hLikelihood_table[sample_count];
-float2 * hLRF;
 static void prepare_particle_likelihood(float2 xy)
 {
+	// パーティクルの集合について、尤度と位置を別々に確保している
 	cudaMalloc((float2**)&dparticle,sample_count * sizeof(float2));
 	cudaMalloc((float2**)&dLikelihood_table,sample_count * sizeof(float));
 	//TODO: hparticleに撒く・hLikelihood_tableに尤度をセット
-	/*
-	 *
-	 *
-	 */
+	
 	cudaMemcpy(dparticle, hparticle, sizeof(float2) * sample_count,cudaMemcpyDeviceToHost);
 	cudaMemcpy(dLikelihood_table, hLikelihood_table, sizeof(float2) * sample_count,cudaMemcpyDeviceToHost);
 }
@@ -105,10 +107,10 @@ __global__ static void kStep(float2 * particle_device, float2 * LRF_device, floa
 	curandState_t s;
 	curand_init(seed, idx, 0, &s);
 
-	particle_device[idx] = prediction(particle_device[idx],param,&s);
+	particle_device[idx] = prediction(particle_device[idx], &s);
 	LT_device[idx] = likelihood(LT_device[idx], particle_device[idx], LRF_device, map_device);
 }
-void Step(vParameter param)
+void Step()
 {
 	//Prediction update, likelihood(null stream)
 	float2* dLRF; cudaHostGetDevicePointer(&dLRF, hLRF, 0);

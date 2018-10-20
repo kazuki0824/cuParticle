@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/cuPF_2/",
+                "${workspaceFolder}/cuPF_2/modules",
+                "${workspaceFolder}/cuPF_2/modules/inc",
+                "${workspaceFolder}/cuPF_2/user",
+                "${workspaceFolder}/cub",
+                "/opt/ros/melodic/include",
+                "/usr/include/pcl-1.8"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}
