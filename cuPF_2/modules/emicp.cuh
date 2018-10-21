@@ -193,11 +193,28 @@ centeringXandY(int rowsA,
 	}
 }
 
+// h_X stores points as the order of
+// [X_x1 X_x2 .... X_x(Xsize-1) X_y1 X_y2 .... X_y(Xsize-1)  X_z1 X_z2 .... X_z(Xsize-1) ],
+// where (X_xi X_yi X_zi) is the i-th point in X.
+// h_Y does the same for Y.
+static void cloud2data(const float3* cloud, float **X, int Xsize) {
+	float* h_X = new float [Xsize * 3];
+	float* h_Xx = &h_X[Xsize*0];
+	float* h_Xy = &h_X[Xsize*1];
+	float* h_Xz = &h_X[Xsize*2];
+
+	for (int i = 0; i < Xsize; i++) {
+		h_Xx[i] = cloud[i].x;
+		h_Xy[i] = cloud[i].y;
+		h_Xz[i] = 0;
+	}
+	*X = h_X;
+}
+
 // This is the function that is actually called by main() or any external program including this library.
-void emicp(const float2* cloud_target, const float2* cloud_source,
+static void emicp(const float3* cloud_target, const float3* cloud_source,
 		   int Xsize, int Ysize, float* h_R, float* h_t, const registrationParameters &param) {
 	float *h_X, *h_Y;
-	pcl::PointCloud<pcl::PointXYZ>::Ptr
 	// Convert scene and model pointclouds to raw data for the GPU.
 	cloud2data(cloud_target, &h_X, Xsize);
 	cloud2data(cloud_source, &h_Y, Ysize);

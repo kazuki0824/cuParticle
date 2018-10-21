@@ -12,7 +12,7 @@
 #include "user/config.h"
 
 void Init(float x, float y);
-void Step(vParameter);
+void Step();
 
 void performICP(void * hLRF);
 

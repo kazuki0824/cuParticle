@@ -3,7 +3,6 @@
 
 #include "particle_filter.h"
 #include "../modules/emicp.cuh"
-#include "../modules/emicp.h"
 
 int nBeam;
 float2 * hLRF;
@@ -31,7 +30,7 @@ void scanCallback(const sensor_msgs::LaserScan& msg)
 
 	for(int i = 0; i < nBeam; i++)
 	{
-		hLRF[i].x = ranges[i];
+		hLRF[i].x = msg.ranges[i];
 		hLRF[i].y = msg.angle_min + (msg.angle_increment * i);
 	}
 
@@ -64,7 +63,7 @@ void scanCallback(const sensor_msgs::LaserScan& msg)
 		param.d_02 = 0.01;
 
 		emicp(cloud[current_cloud], cloud[(current_cloud + 1) % 2], 
-			size_cloud[current_cloud], size_cloud[(current_cloud + 1) % 2, R, t, param);
+			size_cloud[current_cloud], size_cloud[(current_cloud + 1) % 2], R, t, param);
 		state.z = acos(R[8]);
 	}
 }
