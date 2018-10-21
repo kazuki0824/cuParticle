@@ -108,7 +108,7 @@ __global__ static void kStep(float2 * particle_device, float2 * LRF_device, floa
 	curand_init(seed, idx, 0, &s);
 
 	particle_device[idx] = prediction(particle_device[idx], &s);
-	LT_device[idx] = likelihood(LT_device[idx], particle_device[idx], LRF_device, map_device);
+	LT_device[idx] = likelihood(LT_device[idx], particle_device[idx], LRF_device, nBeam, map_device);
 }
 void Step()
 {
