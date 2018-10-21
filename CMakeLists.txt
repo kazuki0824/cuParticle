@@ -5,10 +5,13 @@ set(CMAKE_VERBOSE_MAKEFILE FALSE)
 
 find_package(
   catkin REQUIRED
-  PCL REQUIRED
   roscpp
   std_msgs
 )
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PCL REQUIRED pcl_common-1.8)
+pkg_check_modules(EIGEN3 REQUIRED eigen3)
 
 # Boost
 find_package(Boost 1.54 REQUIRED)
@@ -38,6 +41,7 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/cub
   ${CATKIN_INCLUDE_DIRS}
   ${CUDA_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
 )
 
