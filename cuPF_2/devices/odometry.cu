@@ -6,6 +6,11 @@
 
 float3 state;
 
+// パーティクルフィルタを再適用するために必要な移動量（位置、角度）
+// 単位はそれぞれ[m]、[rad]
+float threshold_transform = 0.05;
+float threshold_rotate = 3.141592653589793f / 360;
+
 void poseCallback(const geometry_msgs::Pose& msg)
 {
     /*
@@ -22,11 +27,6 @@ void poseCallback(const geometry_msgs::Pose& msg)
     float3 old_state = state;
     float3 diff;
 
-    // パーティクルフィルタを再適用するために必要な移動量（位置、角度）
-    // 単位はそれぞれ[m]、[rad]
-    float thr_trans = 0.05;
-    float thr_rot = 3.141592653589793f / 360;
-
     // 現在の姿勢情報を代入する
     state.x = msg.x;
     state.y = msg.y;
@@ -39,6 +39,7 @@ void poseCallback(const geometry_msgs::Pose& msg)
        diff.z > thr_rot)
     {
         // パーティクルフィルタ呼び出し
-        Step()
+        Step();
     }
+
 }
