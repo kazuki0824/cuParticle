@@ -1,0 +1,33 @@
+
+
+image: kazuki0824/cuda9-ros-kinetic-robot-xenial-pcl1-8:latest
+
+cache:
+  paths:
+    - ccache/
+
+before_script:
+  - echo $CI_PROJECT_DIR
+  - git clone --depth 1 https://gitlab.com/VictorLamoine/ros_gitlab_ci.git
+  - source ros_gitlab_ci/gitlab-ci.bash >/dev/null
+  - git submodule update --init --recursive
+
+
+catkin_make:
+  stage: build
+  allow_failure: false
+  script:
+    - catkin_make -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda
+
+#catkin tools:
+#  stage: build
+#  allow_failure: false
+#  script:
+#    - catkin build -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda --summarize --no-status --force-color
+
+catkin lint:
+  stage: build
+  allow_failure: true
+  script:
+    - catkin_lint -W3 .
+
