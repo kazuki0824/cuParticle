@@ -14,4 +14,8 @@ void poseCallback(const geometry_msgs::Pose&);
 extern float threshold_transform;
 extern float threshold_rotate;
 
+// LRF用のデータ
+extern int nBeam;
+extern float2 *hLRF;
+
 #endif
