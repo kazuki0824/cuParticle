@@ -5,10 +5,14 @@ set(CMAKE_VERBOSE_MAKEFILE FALSE)
 
 find_package(
   catkin REQUIRED
-  PCL REQUIRED
   roscpp
   std_msgs
 )
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PCL REQUIRED pcl_common-1.8)
+pkg_check_modules(EIGEN3 REQUIRED eigen3)
+
 
 # Boost
 find_package(Boost 1.54 REQUIRED)
@@ -54,9 +58,9 @@ add_definitions(-D_GLIBCXX_USE_C99_MATH=1)
 
 cuda_add_executable(cu_particle_node
   cuPF_2/main.cpp
-  cuPF_2/ICP_Process.cpp
-  cuPF_2/modules/findRTfromS.cpp
   cuPF_2/particle_filter.cu
+  cuPF_2/modules/emicp.cu
+  cuPF_2/modules/findRTfromS.cpp
   cuPF_2/devices/lidar.cu
   cuPF_2/devices/odometry.cu
   
