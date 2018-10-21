@@ -194,10 +194,10 @@ centeringXandY(int rowsA,
 }
 
 // This is the function that is actually called by main() or any external program including this library.
-void emicp(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_target, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_source, float* h_R, float* h_t, const registrationParameters &param) {
-	int Xsize, Ysize;
+void emicp(const float2* cloud_target, const float2* cloud_source,
+		   int Xsize, int Ysize, float* h_R, float* h_t, const registrationParameters &param) {
 	float *h_X, *h_Y;
-
+	pcl::PointCloud<pcl::PointXYZ>::Ptr
 	// Convert scene and model pointclouds to raw data for the GPU.
 	cloud2data(cloud_target, &h_X, Xsize);
 	cloud2data(cloud_source, &h_Y, Ysize);

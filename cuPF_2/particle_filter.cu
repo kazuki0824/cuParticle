@@ -11,8 +11,10 @@
 #include "modules/emicp.cuh"
 #include "modules/cub_wrapper.cuh"
 #include "particle_filter.h"
-#include "user/likelihood.h"
+#include "user/likelihood.cuh"
 #include "user/behavior.h"
+
+#include "devices/devices.cuh"
 
 #include <stdio.h>
 static int b_search(float ary[], float key, int imin, int imax) {
@@ -47,9 +49,6 @@ static void SetupLMap(float * from, size_t count)
 }
 
 /*********************************************************/
-// スキャンデータ処理用変数
-extern float2 * hLRF;
-extern int nBeam;
 
 // 位置情報
 extern float3 state = {0};

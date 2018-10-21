@@ -28,19 +28,16 @@
 // [X_x1 X_x2 .... X_x(Xsize-1) X_y1 X_y2 .... X_y(Xsize-1)  X_z1 X_z2 .... X_z(Xsize-1) ],
 // where (X_xi X_yi X_zi) is the i-th point in X.
 // h_Y does the same for Y.
-void cloud2data(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float **X, int &Xsize) {
-	Xsize = cloud->size();
-
+void cloud2data(const float2 cloud, float **X, int &Xsize) {
 	float* h_X = new float [Xsize * 3];
 	float* h_Xx = &h_X[Xsize*0];
 	float* h_Xy = &h_X[Xsize*1];
 	float* h_Xz = &h_X[Xsize*2];
 
 	for (int i = 0; i < Xsize; i++) {
-		h_Xx[i] = cloud->points[i].x;
-		h_Xy[i] = cloud->points[i].y;
-		h_Xz[i] = cloud->points[i].z;
+		h_Xx[i] = cloud[i].x;
+		h_Xy[i] = cloud[i].y;
+		h_Xz[i] = 0;
 	}
 	*X = h_X;
 }
-
