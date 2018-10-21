@@ -14,7 +14,6 @@
 void Init(float x, float y);
 void Step();
 
-void performICP(void * hLRF);
 
 
 #endif /* PARTICLE_FILTER_H_ */

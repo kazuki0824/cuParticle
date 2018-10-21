@@ -24,7 +24,7 @@
 */
 #pragma once
 
-#include <pcl/common/transforms.h>
+
 
 /// Struct containing the parameters to do the point cloud registration.
 typedef struct {
@@ -42,4 +42,5 @@ typedef struct {
 // Find the transformation matrix from the scene.
 void findRTfromS(const float* h_Xc, const float* h_Yc, const float* h_S, float* h_R, float* h_t);
 
-
+void emicp(const float3* cloud_target, const float3* cloud_source,
+		   int Xsize, int Ysize, float* h_R, float* h_t, const registrationParameters &param);

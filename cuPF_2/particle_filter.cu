@@ -10,7 +10,7 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-#include "modules/emicp.cuh"
+#include "modules/emicp.h"
 #include "modules/cub_wrapper.cuh"
 #include "particle_filter.h"
 #include "user/likelihood.cuh"

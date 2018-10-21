@@ -212,7 +212,7 @@ static void cloud2data(const float3* cloud, float **X, int Xsize) {
 }
 
 // This is the function that is actually called by main() or any external program including this library.
-static void emicp(const float3* cloud_target, const float3* cloud_source,
+void emicp(const float3* cloud_target, const float3* cloud_source,
 		   int Xsize, int Ysize, float* h_R, float* h_t, const registrationParameters &param) {
 	float *h_X, *h_Y;
 	// Convert scene and model pointclouds to raw data for the GPU.

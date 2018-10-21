@@ -2,7 +2,7 @@
 #include "sensor_msgs/LaserScan.h"
 
 #include "particle_filter.h"
-#include "../modules/emicp.cuh"
+#include "../modules/emicp.h"
 
 int nBeam;
 float2 * hLRF;
