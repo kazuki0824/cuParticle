@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Pose.h"
 #include "tf/transform_datatypes.h"
+#include "helper_math.h"
 
 #include "../particle_filter.h"
 
@@ -28,15 +29,15 @@ void poseCallback(const geometry_msgs::Pose& msg)
     float3 diff;
 
     // 現在の姿勢情報を代入する
-    state.x = msg.x;
-    state.y = msg.y;
+    state.x = msg.position.x;
+    state.y = msg.position.y;
 
     // 前回の姿勢情報取得時からの差分を得る
     diff = state - old_state;
 
     // 差分が閾値を超えていた場合、パーティクルフィルタを適用する
-    if(pow(diff.x, 2) + pow(diff.y, 2) > pow(thr_trans, 2) ||
-       diff.z > thr_rot)
+    if(pow(diff.x, 2) + pow(diff.y, 2) > pow(threshold_transform, 2) ||
+       diff.z > threshold_rotate)
     {
         // パーティクルフィルタ呼び出し
         Step();

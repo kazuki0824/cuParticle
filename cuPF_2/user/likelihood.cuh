@@ -9,14 +9,13 @@
 #define LIKELIHOOD_H_
 
 #include "../inc/helper_math.h"
+#include "user/config.h"
 
 #define MAP_MATRIX_WIDTH    1024
 #define MAP_MATRIX_HEIGHT   1024
 #define MAP_WIDTH           10.0f
 #define MAP_HEIGHT          10.0f
 
-// ビームモデル用のパラメーター
-float z_hit, z_short;
 
 // 地図上のある点が占有されているかどうかを判定する
 // 占有または地図外参照で1.0を、それ以外は0.0を返す。
@@ -52,16 +51,16 @@ likelihood(float old_likelihood, float2 state, float2 * LRF_device, int nBeam, f
         step.x = 1.0 * cos(LRF_device[i].y);
         step.y = 1.0 * sin(LRF_device[i].y);
         // 終点を壁にぶつかるまで伸ばす
-        // isCellOccupied() は後で実装します
-        while(isCellOccupied(est_endpoint) != 1.0)
+        // TODO: isCellOccupied() は後で実装します
+        while(isCellOccupied(est_endpoint, map_device) != 1.0)
         {
             est_endpoint += step;
         }
         est_z = length(est_endpoint - state);
-        act_z = LRF_device[i];
+        act_z = LRF_device[i].x;
 
         // 計測距離の誤差は正規分布に従うものとして考える
-        result += 1/sqrt(2*3.141592653589793f*(z_hit))*exp(-pow((x)-(mu), 2)/(2*pow((z_), 2))hit);
+        result += 1/sqrt(2*3.141592653589793f*(z_hit))*exp(-pow((act_z)-(est_z), 2)/(2*pow((z_), 2))*hit);
 
         // 予期せぬ障害物の存在を考慮する
         if(act_z < est_z)

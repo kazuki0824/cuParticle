@@ -5,14 +5,17 @@
  *      Author: maleicacid
  */
 
+#include "devices/devices.cuh"
+
 #include <curand.h>
 #include <curand_kernel.h>
 
-#include "modules/emicp.cuh"
+#include "modules/emicp.h"
 #include "modules/cub_wrapper.cuh"
 #include "particle_filter.h"
-#include "user/likelihood.h"
+#include "user/likelihood.cuh"
 #include "user/behavior.h"
+
 
 #include <stdio.h>
 static int b_search(float ary[], float key, int imin, int imax) {
@@ -47,19 +50,16 @@ static void SetupLMap(float * from, size_t count)
 }
 
 /*********************************************************/
-// スキャンデータ処理用変数
-extern float2 * hLRF;
-extern int nBeam;
 
 // 位置情報
-extern float3 state = {0};
+extern float3 state;
 
 float * p;
 float2 * dparticle;
 float2 hparticle[sample_count];
 float * dLikelihood_table;
 float hLikelihood_table[sample_count];
-static void prepare_particle_likelihood(float2 xy)
+static void prepare_particle_likelihood(float3 xy)
 {
 	// パーティクルの集合について、尤度と位置を別々に確保している
 	cudaMalloc((float2**)&dparticle,sample_count * sizeof(float2));
@@ -76,7 +76,7 @@ cudaStream_t stream_1;
 cudaStream_t stream_2;
 void Init(float x, float y)
 {
-	state = make_float2(x,y);
+	state = make_float3(x,y,0);
 
 	//TODO: 尤度マップ転送
 	SetupLMap(NULL, MAP_SIZE*MAP_SIZE);
@@ -101,20 +101,20 @@ void Init(float x, float y)
 	cudaStreamCreate(&stream_2);
 }
 
-__global__ static void kStep(float2 * particle_device, float2 * LRF_device, float * LT_device,float2 x_y, unsigned int seed,vParameter param, float * map_device)
+__global__ static void kStep(float2 * particle_device, float2 * LRF_device, float * LT_device,float3 x_y, unsigned int seed, float * map_device, int n_Beam)
 {
 	int idx = threadIdx.x + blockIdx.x * blockDim.x;
 	curandState_t s;
 	curand_init(seed, idx, 0, &s);
 
 	particle_device[idx] = prediction(particle_device[idx], &s);
-	LT_device[idx] = likelihood(LT_device[idx], particle_device[idx], LRF_device, nBeam, map_device);
+	LT_device[idx] = likelihood(LT_device[idx], particle_device[idx], LRF_device, n_Beam, map_device);
 }
 void Step()
 {
 	//Prediction update, likelihood(null stream)
 	float2* dLRF; cudaHostGetDevicePointer(&dLRF, hLRF, 0);
-	kStep<<<64,128>>>(dparticle,dLRF,dLikelihood_table,state, clock(), param, map);
+	kStep<<<64,128>>>(dparticle,dLRF,dLikelihood_table,state, clock(), map, nBeam);
 
 	//Inclusive scan using CUB(null stream)
 	float hPrefix[sample_count];

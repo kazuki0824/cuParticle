@@ -5,13 +5,10 @@ set(CMAKE_VERBOSE_MAKEFILE FALSE)
 
 find_package(
   catkin REQUIRED
+  PCL REQUIRED
   roscpp
   std_msgs
 )
-
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(PCL REQUIRED pcl_common-1.8)
-pkg_check_modules(EIGEN3 REQUIRED eigen3)
 
 # Boost
 find_package(Boost 1.54 REQUIRED)
@@ -37,12 +34,13 @@ catkin_package(
 
 
 include_directories(
+  ${PROJECT_SOURCE_DIR}/cuPF_2
   ${PROJECT_SOURCE_DIR}/cuPF_2/modules/inc
   ${PROJECT_SOURCE_DIR}/cub
   ${CATKIN_INCLUDE_DIRS}
   ${CUDA_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
+  /opt/ros/kinetic/include
 )
 
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_60,code=sm_60 -O3 --use_fast_math -std=c++11")
@@ -57,11 +55,10 @@ add_definitions(-D_GLIBCXX_USE_C99_MATH=1)
 cuda_add_executable(cu_particle_node
   cuPF_2/main.cpp
   cuPF_2/ICP_Process.cpp
-  cuPF_2/modules/cloud2data.cpp
   cuPF_2/modules/findRTfromS.cpp
   cuPF_2/particle_filter.cu
-  cuPF_2/lidar.cu
-  cuPF_2/odometry.cu
+  cuPF_2/devices/lidar.cu
+  cuPF_2/devices/odometry.cu
   
 )
 

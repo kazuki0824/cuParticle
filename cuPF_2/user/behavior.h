@@ -13,7 +13,7 @@ static inline __device__ float getNormal(float sigma, curandState_t * s)
 	return sigma * curand_normal(s);
 }
 
-static inline __device__ float2 prediction(float2 state, vParameter p, curandState_t * s)
+static inline __device__ float2 prediction(float2 state, curandState_t * s)
 {
 	//TODO:
 	return state;

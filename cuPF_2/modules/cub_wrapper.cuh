@@ -12,7 +12,7 @@
 #include <cub/device/device_scan.cuh>
 
 
-static inline void incl_scan_CDF(float * d_in,float * h_out,int num_items,cudaStream_t * stream)
+static void incl_scan_CDF(float * d_in,float * h_out,int num_items,cudaStream_t * stream)
 {
 /*
 	int *d_in = NULL;
