@@ -10,7 +10,7 @@ find_package(
 )
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(PCL REQUIRED pcl_common-1.8)
+pkg_check_modules(PCL REQUIRED pcl_common-1.8 pcl_io-1.8 pcl_visualization-1.8 pcl_sample_consensus-1.8)
 pkg_check_modules(EIGEN3 REQUIRED eigen3)
 
 
@@ -21,7 +21,7 @@ find_package(Boost 1.54 REQUIRED)
 find_library(ATLAS atlas)
 
 # Lapack
-include(FindLAPACK)
+find_library(LAPACK)
 add_definitions ( ${LAPACK_LINKER_FLAGS} )
 
 
@@ -59,11 +59,10 @@ add_definitions(-D_GLIBCXX_USE_C99_MATH=1)
 cuda_add_executable(cu_particle_node
   cuPF_2/main.cpp
   cuPF_2/particle_filter.cu
-  cuPF_2/modules/emicp.cu
-  cuPF_2/modules/findRTfromS.cpp
   cuPF_2/devices/lidar.cu
   cuPF_2/devices/odometry.cu
-  
+  cuPF_2/modules/emicp.cu
+  cuPF_2/modules/findRTfromS.cpp
 )
 
 cuda_add_cublas_to_target(cu_particle_node)
