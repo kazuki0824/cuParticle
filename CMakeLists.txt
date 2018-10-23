@@ -21,7 +21,7 @@ find_package(Boost 1.54 REQUIRED)
 find_library(ATLAS atlas)
 
 # Lapack
-find_library(LAPACK)
+find_package(LAPACK REQUIRED)
 add_definitions ( ${LAPACK_LINKER_FLAGS} )
 
 
