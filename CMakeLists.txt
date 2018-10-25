@@ -63,6 +63,7 @@ cuda_add_executable(cu_particle_node
   cuPF_2/modules/findRTfromS.cpp
   cuPF_2/devices/lidar.cu
   cuPF_2/devices/odometry.cu
+  cuPF_2/devices/map.cu
   
 )
 

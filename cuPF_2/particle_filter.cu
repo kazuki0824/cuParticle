@@ -54,6 +54,12 @@ static void SetupLMap(float * from, size_t count)
 // 位置情報
 extern float3 state;
 
+// 地図情報
+extern int width;
+extern int height;
+extern float resolution;
+extern float2 center;
+
 float * p;
 float2 * dparticle;
 float2 hparticle[sample_count];
@@ -101,20 +107,22 @@ void Init(float x, float y)
 	cudaStreamCreate(&stream_2);
 }
 
-__global__ static void kStep(float2 * particle_device, float2 * LRF_device, float * LT_device,float3 x_y, unsigned int seed, float * map_device, int n_Beam)
+__global__ static void kStep(float2 * particle_device, float2 * LRF_device, float * LT_device,float3 x_y, unsigned int seed, float * map_device, int n_Beam,
+							int width, int height, float resolution, float2 center)
 {
 	int idx = threadIdx.x + blockIdx.x * blockDim.x;
 	curandState_t s;
 	curand_init(seed, idx, 0, &s);
 
 	particle_device[idx] = prediction(particle_device[idx], &s);
-	LT_device[idx] = likelihood(LT_device[idx], particle_device[idx], LRF_device, n_Beam, map_device);
+	LT_device[idx] = likelihood(LT_device[idx], particle_device[idx], LRF_device, n_Beam, 
+							    map_device, width, height, resolution, center);
 }
 void Step()
 {
 	//Prediction update, likelihood(null stream)
 	float2* dLRF; cudaHostGetDevicePointer(&dLRF, hLRF, 0);
-	kStep<<<64,128>>>(dparticle,dLRF,dLikelihood_table,state, clock(), map, nBeam);
+	kStep<<<64,128>>>(dparticle,dLRF,dLikelihood_table,state, clock(), map, nBeam, width, height, resolution, center);
 
 	//Inclusive scan using CUB(null stream)
 	float hPrefix[sample_count];
