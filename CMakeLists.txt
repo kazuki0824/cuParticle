@@ -59,10 +59,12 @@ add_definitions(-D_GLIBCXX_USE_C99_MATH=1)
 cuda_add_executable(cu_particle_node
   cuPF_2/main.cpp
   cuPF_2/particle_filter.cu
-  cuPF_2/devices/lidar.cu
-  cuPF_2/devices/odometry.cu
   cuPF_2/modules/emicp.cu
   cuPF_2/modules/findRTfromS.cpp
+  cuPF_2/devices/lidar.cu
+  cuPF_2/devices/odometry.cu
+  cuPF_2/devices/map.cu
+  
 )
 
 cuda_add_cublas_to_target(cu_particle_node)

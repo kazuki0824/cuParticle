@@ -11,23 +11,17 @@
 #include "../inc/helper_math.h"
 #include "user/config.h"
 
-#define MAP_MATRIX_WIDTH    1024
-#define MAP_MATRIX_HEIGHT   1024
-#define MAP_WIDTH           10.0f
-#define MAP_HEIGHT          10.0f
-
-
 // 地図上のある点が占有されているかどうかを判定する
 // 占有または地図外参照で1.0を、それ以外は0.0を返す。
 __device__ inline float
-isCellOccupied(float2 point, float* map_device)
+isCellOccupied(float2 point, float* map_device, int width, int height, float resolution, float2 center)
 {
     int2 iPoint;
-    iPoint.x = MAP_MATRIX_WIDTH * (point.x / MAP_WIDTH + 0.5);
-    iPoint.y = MAP_MATRIX_HEIGHT * (point.y / MAP_HEIGHT + 0.5);
-    if(iPoint.x < 0 || iPoint.y < 0 || iPoint.x > MAP_MATRIX_WIDTH - 1 || iPoint.y > MAP_MATRIX_HEIGHT - 1)
+    iPoint.x = (point.x + center.x) / resolution;
+    iPoint.y = (point.y + center.y) / resolution;
+    if(iPoint.x < 0 || iPoint.y < 0 || iPoint.x > width - 1 || iPoint.y > height - 1)
         return 1.0;
-    return map_device[iPoint.y * MAP_MATRIX_WIDTH + iPoint.x];
+    return map_device[iPoint.y * width + iPoint.x];
 }
 
 // 尤度を計算する
@@ -36,7 +30,8 @@ isCellOccupied(float2 point, float* map_device)
 // LRF_device : その時点でのスキャンデータ
 // map_device : 地図データ
 static __device__ float 
-likelihood(float old_likelihood, float2 state, float2 * LRF_device, int nBeam, float * map_device)
+likelihood(float old_likelihood, float2 state, float2* LRF_device, int nBeam, 
+           float* map_device, int width, int height, float resolution, float2 center)
 {
     // 各レーザー方向の最も近い点を計算する
     float2 step;
@@ -51,8 +46,7 @@ likelihood(float old_likelihood, float2 state, float2 * LRF_device, int nBeam, f
         step.x = 1.0 * cos(LRF_device[i].y);
         step.y = 1.0 * sin(LRF_device[i].y);
         // 終点を壁にぶつかるまで伸ばす
-        // TODO: isCellOccupied() は後で実装します
-        while(isCellOccupied(est_endpoint, map_device) != 1.0)
+        while(isCellOccupied(est_endpoint, map_device, width, height, resolution, center) == 0.0)
         {
             est_endpoint += step;
         }
