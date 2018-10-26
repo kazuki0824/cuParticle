@@ -1,13 +1,20 @@
 #include "ros/ros.h"
 #include "nav_msgs/OccupancyGrid.h"
 
-float *hmap;
+float *h_map;       // ホスト側の地図
+float *d_map;		// デバイス側の地図
 int width;
 int height;
 float resolution;
 float2 center;
-
 bool isFirstmapReceived = false;
+
+// ホストからデバイスへ地図を転送
+static void SetupLMap(float * from, size_t count)
+{
+	cudaMalloc((void **)&d_map, count);
+	cudaMemcpyToSymbol(d_map, from, count);
+}
 
 void mapCallback(const nav_msgs::OccupancyGrid& msg)
 {
@@ -29,12 +36,14 @@ void mapCallback(const nav_msgs::OccupancyGrid& msg)
     width = (int)msg.info.width;
     height = (int)msg.info.height;
     resolution = (float)msg.info.resolution;
-    hmap = (float*)malloc(sizeof(float) * width * height);
+    h_map = (float*)malloc(sizeof(float) * width * height);
     center.x = msg.info.origin.position.x;
     center.y = msg.info.origin.position.y;
     for(int i = 0; i < width * height; i++)
     {
-        hmap[i] = (float)(msg.data[i]) / 100.0;
+        h_map[i] = (float)(msg.data[i]) / 100.0;
     }
+    // 尤度マップ転送(host->device)
+	SetupLMap(h_map, sizeof(float) * width * height);
     isFirstmapReceived = true;
 }
