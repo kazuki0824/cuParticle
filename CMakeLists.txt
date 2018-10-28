@@ -44,7 +44,7 @@ include_directories(
   ${CATKIN_INCLUDE_DIRS}
   ${CUDA_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
-  /opt/ros/kinetic/include
+  ${CMAKE_PREFIX_PATH}
 )
 
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_60,code=sm_60 -O3 --use_fast_math -std=c++11")
