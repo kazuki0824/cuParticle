@@ -40,25 +40,8 @@ static inline int sampling(float random_seed, float ary[], int count)
 	else return index + 1;
 }
 
-
-/*********************************************************/
-
-__device__ float map[MAP_SIZE*MAP_SIZE];
-static void SetupLMap(float * from, size_t count)
-{
-	cudaMemcpyToSymbol(map, from, count);
-}
-
-/*********************************************************/
-
 // 位置情報
 extern float3 state;
-
-// 地図情報
-extern int width;
-extern int height;
-extern float resolution;
-extern float2 center;
 
 float * p;
 float2 * dparticle;
@@ -83,9 +66,6 @@ cudaStream_t stream_2;
 void Init(float x, float y)
 {
 	state = make_float3(x,y,0);
-
-	//TODO: 尤度マップ転送
-	SetupLMap(NULL, MAP_SIZE*MAP_SIZE);
 
 	//Init RNG (Host)
 	curandCreateGenerator(&g, CURAND_RNG_PSEUDO_DEFAULT);
@@ -122,7 +102,7 @@ void Step()
 {
 	//Prediction update, likelihood(null stream)
 	float2* dLRF; cudaHostGetDevicePointer(&dLRF, hLRF, 0);
-	kStep<<<64,128>>>(dparticle,dLRF,dLikelihood_table,state, clock(), map, nBeam, width, height, resolution, center);
+	kStep<<<64,128>>>(dparticle,dLRF,dLikelihood_table,state, clock(), d_map, nBeam, width, height, resolution, center);
 
 	//Inclusive scan using CUB(null stream)
 	float hPrefix[sample_count];
