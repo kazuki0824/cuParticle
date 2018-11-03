@@ -17,8 +17,6 @@ pkg_check_modules(EIGEN3 REQUIRED eigen3)
 # Boost
 find_package(Boost 1.54 REQUIRED)
 
-# Atlas
-find_library(ATLAS atlas)
 
 # Lapack
 find_package(LAPACK REQUIRED)
