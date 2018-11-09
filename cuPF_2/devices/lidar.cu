@@ -6,7 +6,7 @@
 
 int nBeam;
 float2 * hLRF;
-extern float3 state;
+extern float3 pf_out_pose;
 
 // スキャンデータを受け取ったときのコールバック関数
 void scanCallback(const sensor_msgs::LaserScan& msg)
@@ -64,6 +64,6 @@ void scanCallback(const sensor_msgs::LaserScan& msg)
 
 		emicp(cloud[current_cloud], cloud[(current_cloud + 1) % 2], 
 			size_cloud[current_cloud], size_cloud[(current_cloud + 1) % 2], R, t, param);
-		state.z = acos(R[8]);
+		pf_out_pose.z = acos(R[8]);
 	}
 }

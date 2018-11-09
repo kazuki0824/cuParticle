@@ -7,6 +7,7 @@ find_package(
   catkin REQUIRED
   roscpp
   std_msgs
+  tf
 )
 
 find_package(PkgConfig REQUIRED)
@@ -32,6 +33,7 @@ catkin_package(
   CATKIN_DEPENDS
   roscpp
   std_msgs
+  tf
 )
 
 

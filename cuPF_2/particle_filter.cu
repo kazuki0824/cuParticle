@@ -43,11 +43,16 @@ static inline int sampling(float random_seed, float ary[], int count)
 // 位置情報
 extern float3 state;
 
+// パーティクル
 float * p;
 float2 * dparticle;
 float2 hparticle[sample_count];
+float3 pf_out_pose;
+extern float3 diff;
+
 float * dLikelihood_table;
 float hLikelihood_table[sample_count];
+
 static void prepare_particle_likelihood(float3 xy)
 {
 	// パーティクルの集合について、尤度と位置を別々に確保している
@@ -88,21 +93,23 @@ void Init(float x, float y)
 }
 
 __global__ static void kStep(float2 * particle_device, float2 * LRF_device, float * LT_device,float3 x_y, unsigned int seed, float * map_device, int n_Beam,
-							int width, int height, float resolution, float2 center)
+							int width, int height, float resolution, float2 center, float3 diff)
 {
 	int idx = threadIdx.x + blockIdx.x * blockDim.x;
 	curandState_t s;
 	curand_init(seed, idx, 0, &s);
 
-	particle_device[idx] = prediction(particle_device[idx], &s);
+	particle_device[idx] = prediction(particle_device[idx], diff, 0.8 * sqrt(diff.x * diff.x + diff.y * diff.y), &s);
 	LT_device[idx] = likelihood(LT_device[idx], particle_device[idx], LRF_device, n_Beam, 
 							    map_device, width, height, resolution, center);
 }
+
 void Step()
 {
 	//Prediction update, likelihood(null stream)
 	float2* dLRF; cudaHostGetDevicePointer(&dLRF, hLRF, 0);
-	kStep<<<64,128>>>(dparticle,dLRF,dLikelihood_table,state, clock(), d_map, nBeam, width, height, resolution, center);
+
+	kStep<<<64,128>>>(dparticle,dLRF,dLikelihood_table,state, clock(), d_map, nBeam, width, height, resolution, center, diff);
 
 	//Inclusive scan using CUB(null stream)
 	float hPrefix[sample_count];
@@ -128,14 +135,23 @@ void Step()
 		new_particles[var] = hparticle[particle_index];
 		new_likelihood[var] = hLikelihood_table[particle_index];
 	}
-	//TODO:Update hLikelihood_table
-/*
- *
- */
-
+	// Update hLikelihood_table
+	float likelihood_max = 0;
+	for (int i = 0; i < sample_count; ++i)
+	{
+		hLikelihood_table[i] = new_likelihood[i];
+		// 最も尤度の高いパーティクルを現在の姿勢として採用する
+		if(hLikelihood_table[i] > likelihood_max)
+		{
+			likelihood_max = hLikelihood_table[i];
+			pf_out_pose.x = new_particles[i].x;
+			pf_out_pose.y = new_particles[i].y;
+		}
+	}
 
 	//Send re-sampled particles to GPU
 	cudaMemcpy(hparticle, new_particles, sizeof(float2) * sample_count,cudaMemcpyHostToHost);
 	cudaMemcpy(dparticle, hparticle, sizeof(float2) * sample_count,cudaMemcpyDeviceToHost);
 	cudaMemcpy(dLikelihood_table, hLikelihood_table, sizeof(float2) * sample_count,cudaMemcpyDeviceToHost);
+
 }
