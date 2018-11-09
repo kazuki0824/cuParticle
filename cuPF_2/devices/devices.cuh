@@ -4,12 +4,12 @@
 
 #include "ros/ros.h"
 #include "sensor_msgs/LaserScan.h"
-#include "geometry_msgs/Pose.h"
+#include "geometry_msgs/Pose2D.h"
 #include "nav_msgs/OccupancyGrid.h"
 
 // コールバック関数
 void scanCallback(const sensor_msgs::LaserScan&);
-void poseCallback(const geometry_msgs::Pose&);
+void odometryCallback(const geometry_msgs::Pose2D&);
 void mapCallback(const nav_msgs::OccupancyGrid&);
 
 // パラメーター群
