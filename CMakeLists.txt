@@ -13,7 +13,7 @@ find_package(
 )
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(PCL REQUIRED pcl_common-1.8 pcl_io-1.8 pcl_visualization-1.8 pcl_sample_consensus-1.8)
+#pkg_check_modules(PCL REQUIRED pcl_common-1.8 pcl_io-1.8 pcl_visualization-1.8 pcl_sample_consensus-1.8)
 pkg_check_modules(EIGEN3 REQUIRED eigen3)
 
 
