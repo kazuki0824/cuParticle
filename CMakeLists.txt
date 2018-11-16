@@ -8,8 +8,6 @@ find_package(
   roscpp
   std_msgs
   tf
-  sensor_msgs
-  read_qei
 )
 
 find_package(PkgConfig REQUIRED)
